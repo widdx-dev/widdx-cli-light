@@ -70,7 +70,7 @@ widdx-we = "widdx_web:main"
 
 [project.urls]
 Homepage = "https://widdx.com"
-Repository = "https://github.com/widdx1990/widdx-cli-light"
+Repository = "https://github.com/widdx-dev/widdx-cli-light"
 Documentation = "https://widdx.com/docs"
 
 [tool.setuptools]

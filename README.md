@@ -2,9 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/widdx1990/widdx-cli-light)
-[![Tests Passing](https://img.shields.io/badge/tests-873%20passing-success.svg)](https://github.com/widdx1990/widdx-cli-light/actions/workflows/ci.yml)
-[![Autonomy Level](https://img.shields.io/badge/Autonomy-Level%205.0-orange.svg)](docs/reports/PROJECT-COMPARISON.md)
+[![Tests](https://img.shields.io/badge/tests-873%20passing-success.svg)](https://github.com/widdx-dev/widdx-cli-light/actions/workflows/ci.yml)
+[![Status](https://img.shields.io/badge/status-measured-informational.svg)](PROJECT_STATUS.md)
 
 > **Layered cognitive runtime for autonomous engineering** — a tool-calling agent under a single decision authority, with semantic stability monitoring, self-healing, and domain-specific output verification.
 
@@ -329,13 +328,13 @@ core/tools/
 ### Option 1: Install via pip
 
 ```bash
-pip install git+https://github.com/widdx1990/widdx-cli-light.git
+pip install git+https://github.com/widdx-dev/widdx-cli-light.git
 ```
 
 ### Option 2: Install from source
 
 ```bash
-git clone https://github.com/widdx1990/widdx-cli-light.git
+git clone https://github.com/widdx-dev/widdx-cli-light.git
 cd widdx-cli-light
 pip install -e .
 ```

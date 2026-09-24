@@ -3,7 +3,7 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/widdx1990/widdx-cli-light
+git clone https://github.com/widdx-dev/widdx-cli-light
 cd widdx-cli-light
 pip install -e ".[dev,api]"
 pre-commit install
