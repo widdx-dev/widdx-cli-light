@@ -1,0 +1,91 @@
+# ===========================================================================
+# WIDDX Nexus — Docker Compose (Production Setup)
+# ===========================================================================
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose up -d web api      # Start specific services
+#   docker compose logs -f            # Follow logs
+# ===========================================================================
+
+version: "3.8"
+
+services:
+  # ── Web UI ──────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: widdx/nexus:latest
+    container_name: widdx-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - widdx_data:/workspace/.widdx
+      # config.json للقراءة فقط من خارج الحاوية (اختياري)
+      # - ./config.json:/workspace/config.json:ro
+    environment:
+      - WIDDX_API_KEY=${WIDDX_API_KEY:-change-me-in-production}
+      - WIDDX_HOST=0.0.0.0
+      - WIDDX_PORT=8000
+      - WIDDX_PROVIDER_NAME=${WIDDX_PROVIDER_NAME:-opencode-zen}
+      - WIDDX_PROVIDER_MODEL=${WIDDX_PROVIDER_MODEL:-deepseek-v4-flash-free}
+      - WIDDX_LLM_API_KEY=${WIDDX_LLM_API_KEY:-}
+      - WIDDX_CORS_ORIGINS=${WIDDX_CORS_ORIGINS:-http://localhost:8000}
+      - WIDDX_LOG_LEVEL=${WIDDX_LOG_LEVEL:-INFO}
+      - WIDDX_MAX_MEMORIES=500
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - widdx_net
+    entrypoint: ["widdx-web"]
+    command: ["--host", "0.0.0.0", "--port", "8000"]
+
+  # ── API Server ──────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: widdx/nexus:latest
+    container_name: widdx-api
+    ports:
+      - "8001:8001"
+    volumes:
+      - widdx_data:/workspace/.widdx
+    environment:
+      - WIDDX_API_KEY=${WIDDX_API_KEY:-change-me-in-production}
+      - WIDDX_API_HOST=0.0.0.0
+      - WIDDX_PROVIDER_NAME=${WIDDX_PROVIDER_NAME:-opencode-zen}
+      - WIDDX_PROVIDER_MODEL=${WIDDX_PROVIDER_MODEL:-deepseek-v4-flash-free}
+      - WIDDX_LLM_API_KEY=${WIDDX_LLM_API_KEY:-}
+      - WIDDX_CORS_ORIGINS=${WIDDX_CORS_ORIGINS:-http://localhost:8001}
+      - WIDDX_LOG_LEVEL=${WIDDX_LOG_LEVEL:-INFO}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    depends_on:
+      - web
+    networks:
+      - widdx_net
+    entrypoint: ["widdx-api"]
+    command: ["--port", "8001"]
+
+# ── Volumes ──────────────────────────────────────────────
+volumes:
+  widdx_data:
+    driver: local
+    name: widdx_nexus_data
+
+# ── Networks ─────────────────────────────────────────────
+networks:
+  widdx_net:
+    driver: bridge
+    name: widdx_nexus_network

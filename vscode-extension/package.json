@@ -1,0 +1,152 @@
+{
+  "name": "widdx-cortex",
+  "displayName": "WIDDX Cortex",
+  "description": "AI-powered coding assistant — chat, edit, and automate from VS Code",
+  "version": "1.0.0",
+  "publisher": "widdx",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/widdx1990/widdx-cli-light"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Chat",
+    "Programming Languages",
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "chat",
+    "assistant",
+    "coding",
+    "widdx",
+    "cortex",
+    "copilot"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "widdx-cortex-sidebar",
+          "title": "WIDDX Cortex",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "widdx-cortex-sidebar": [
+        {
+          "type": "webview",
+          "id": "widdx-cortex.chatView",
+          "name": "Chat"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "widdx-cortex.openChat",
+        "title": "WIDDX Cortex: Open Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "widdx-cortex.newSession",
+        "title": "WIDDX Cortex: New Session"
+      },
+      {
+        "command": "widdx-cortex.sendSelection",
+        "title": "WIDDX Cortex: Send Selection to Chat"
+      },
+      {
+        "command": "widdx-cortex.explainCode",
+        "title": "WIDDX Cortex: Explain Selected Code"
+      },
+      {
+        "command": "widdx-cortex.fixCode",
+        "title": "WIDDX Cortex: Fix Selected Code"
+      },
+      {
+        "command": "widdx-cortex.reviewFile",
+        "title": "WIDDX Cortex: Review Current File"
+      },
+      {
+        "command": "widdx-cortex.setApiKey",
+        "title": "WIDDX Cortex: Set API Key"
+      },
+      {
+        "command": "widdx-cortex.startServer",
+        "title": "WIDDX Cortex: Start API Server"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "widdx-cortex.openChat",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      },
+      {
+        "command": "widdx-cortex.sendSelection",
+        "key": "ctrl+alt+s",
+        "mac": "cmd+alt+s",
+        "when": "editorHasSelection"
+      }
+    ],
+    "configuration": {
+      "title": "WIDDX Cortex",
+      "properties": {
+        "widdx.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "WIDDX API server URL"
+        },
+        "widdx.model": {
+          "type": "string",
+          "default": "auto",
+          "description": "AI model to use (auto for best available)"
+        },
+        "widdx.autoStartServer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the API server when opening chat"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "widdx-cortex.explainCode",
+          "group": "widdx",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "widdx-cortex.fixCode",
+          "group": "widdx",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "widdx-cortex.sendSelection",
+          "group": "widdx",
+          "when": "editorHasSelection"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

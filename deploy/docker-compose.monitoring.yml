@@ -1,0 +1,72 @@
+# ===========================================================================
+# WIDDX Nexus — Monitoring Stack (Prometheus + Grafana)
+# ===========================================================================
+# Usage:
+#   docker compose -f deploy/docker-compose.monitoring.yml up -d
+#   # Grafana: http://localhost:3000 (admin/admin)
+#   # Metrics: http://localhost:9090
+# ===========================================================================
+
+version: "3.8"
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: widdx-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    restart: unless-stopped
+    networks:
+      - widdx_monitor_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: widdx-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-dashboard.json:/etc/grafana/provisioning/dashboards/widdx.json:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - widdx_monitor_net
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: widdx-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+    restart: unless-stopped
+    networks:
+      - widdx_monitor_net
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  widdx_monitor_net:
+    driver: bridge

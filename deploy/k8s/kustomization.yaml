@@ -1,0 +1,24 @@
+# ═══════════════════════════════════════════════════════════════════
+# WIDDX Nexus — Kustomize bundle
+# ═══════════════════════════════════════════════════════════════════
+# Apply everything with:  kubectl apply -k deploy/k8s/
+# (secret.yaml is intentionally NOT listed — create it separately
+#  from secret.example.yaml so credentials never live in Git.)
+# ═══════════════════════════════════════════════════════════════════
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: widdx
+
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  # - secret.yaml   ← create from secret.example.yaml, then uncomment

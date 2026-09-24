@@ -1,0 +1,10 @@
+# WIDDX Nexus — Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: widdx
+  labels:
+    app.kubernetes.io/part-of: widdx
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

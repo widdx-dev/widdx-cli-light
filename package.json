@@ -1,0 +1,32 @@
+{
+  "name": "widdx-nexus",
+  "version": "3.2.0",
+  "description": "WIDDX Nexus — Terminal AI Workspace | By MUHAMMAD MUSLIH (widdx.com)",
+  "type": "module",
+  "main": "bin/cli.js",
+  "bin": {
+    "widdx": "./bin/cli.js",
+    "widdx-tui": "./bin/cli.js",
+    "widdx-web": "./bin/cli.js",
+    "widdx-api": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "core",
+    "cli",
+    "tui",
+    "scripts",
+    "skills",
+    "pyproject.toml",
+    "requirements.txt",
+    "main.py",
+    "config.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "^2026.1.14",
+    "@modelcontextprotocol/server-memory": "^2026.1.26",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.12.18",
+    "@playwright/mcp": "^0.0.75"
+  }
+}

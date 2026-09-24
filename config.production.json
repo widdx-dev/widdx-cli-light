@@ -1,0 +1,69 @@
+{
+  "provider": {
+    "name": "deepseek",
+    "model": "deepseek-v4-flash-free",
+    "base_url": ""
+  },
+  "max_turns": 50,
+  "temperature": 0.7,
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "workers": 4
+  },
+  "api": {
+    "rate_limit_max": 120,
+    "rate_limit_window": 60,
+    "max_body_bytes": 10485760,
+    "cors_origins": "https://app.widdx.com,https://admin.widdx.com"
+  },
+  "mcp_servers": [
+    {
+      "name": "filesystem",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "."]
+    },
+    {
+      "name": "memory",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-memory"]
+    },
+    {
+      "name": "fetch",
+      "command": "uvx",
+      "args": ["mcp-server-fetch", "--ignore-robots-txt"]
+    },
+    {
+      "name": "sequential-thinking",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-sequential-thinking"]
+    }
+  ],
+  "logging": {
+    "level": "INFO",
+    "file": "logs/widdx.log",
+    "max_bytes": 52428800,
+    "backup_count": 5
+  },
+  "backup": {
+    "enabled": true,
+    "directory": "backups",
+    "retention_days": 30
+  },
+  "monitoring": {
+    "enabled": true,
+    "prometheus": {
+      "enabled": true,
+      "path": "/metrics"
+    },
+    "alerts": {
+      "slow_threshold_seconds": 10,
+      "error_rate_threshold": 0.05
+    }
+  },
+  "memory": {
+    "max_memories": 500,
+    "max_content_length": 200,
+    "max_age_days": 180
+  }
+}

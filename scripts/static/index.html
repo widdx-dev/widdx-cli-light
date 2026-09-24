@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>WIDDX Nexus — AI Agent Platform</title>
+<!-- Self-hosted assets (no external CDN dependency) -->
+<link rel="stylesheet" href="/static/vendor/fonts/inter.css">
+<link rel="stylesheet" href="/static/vendor/fonts/cairo.css">
+<link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+<script src="/static/vendor/dompurify/purify.min.js"></script>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="stylesheet" href="/static/css/style.css?v=1781966100">
+<link rel="stylesheet" href="/static/vendor/codemirror/codemirror.min.css">
+<link rel="stylesheet" href="/static/vendor/codemirror/monokai.min.css">
+<script src="/static/vendor/codemirror/codemirror.min.js"></script>
+<script src="/static/vendor/codemirror/javascript.min.js"></script>
+<script src="/static/vendor/codemirror/python.min.js"></script>
+<script src="/static/vendor/codemirror/htmlmixed.min.js"></script>
+<script src="/static/vendor/codemirror/xml.min.js"></script>
+<script src="/static/vendor/codemirror/css.min.js"></script>
+<script src="/static/vendor/codemirror/markdown.min.js"></script>
+<script src="/static/vendor/codemirror/yaml.min.js"></script>
+<script src="/static/vendor/codemirror/shell.min.js"></script>
+<script src="/static/vendor/codemirror/sql.min.js"></script>
+<script>
+// Safe stubs — prevent ReferenceError before external scripts load.
+// Each stub is replaced by the real implementation when its script loads.
+(function(){var w=window;var S='showView toggleSidebar toggleModelDropdown toggleTheme scrollBottom toggleComputer cancelAgent sendMessage switchTab closeCommandPalette openCommandPalette sendOnboardingMsg execPaletteAction showToast runTermCmd handleInputKey'.split(' ');for(var i=0;i<S.length;i++){if(!w[S[i]])w[S[i]]=function(){}}})();
+</script>
+<script src="/static/js/lang.js?v=1781966100"></script>
+<script src="/static/js/ui.js?v=1781966100"></script>
+<script src="/static/js/nexus.js?v=1781966200"></script>
+<script src="/static/js/views/cron.js?v=1781966100"></script>
+<script src="/static/js/views/settings.js?v=1781966100"></script>
+<script src="/static/js/views/mcp.js?v=1781966100"></script>
+<script src="/static/js/views/dashboard.js?v=1781966100"></script>
+<script src="/static/js/views/delegation.js?v=1781966100"></script>
+<script src="/static/js/views/memory.js?v=1781966100"></script>
+<script src="/static/js/views/gateway.js?v=1781966100"></script>
+<script src="/static/js/views/skills.js?v=1781966100"></script>
+<script src="/static/js/views/activity.js?v=1781966100"></script>
+<script src="/static/js/views/sessions.js?v=1781966100"></script>
+<script src="/static/js/views/checkpoints.js?v=1781966100"></script>
+<script src="/static/js/views/git.js?v=1781966100"></script>
+<script src="/static/js/views/doctor.js?v=1781966100"></script>
+<script src="/static/js/views/debug.js?v=1781966100"></script>
+<script src="/static/js/views/permissions.js?v=1781966100"></script>
+<script src="/static/js/views/plugins.js?v=1781966100"></script>
+<script src="/static/js/views/workflows.js?v=1781966100"></script>
+<script src="/static/js/views/proxy.js?v=1781966100"></script>
+<script src="/static/js/views/gguf.js?v=1781966100"></script>
+<script src="/static/js/views/manifest.js?v=1781966100"></script>
+<script src="/static/js/views/tokenbudget.js?v=1781966100"></script>
+<script src="/static/js/views/autocommit.js?v=1781966100"></script>
+<script src="/static/js/views/apikeys.js?v=1781966100"></script>
+</head>
+<body>
+<!-- ═══════════════ BOOT SCREEN ═══════════════ -->
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-content">
+    <div class="boot-logo">W</div>
+    <div class="boot-title">WIDDX Nexus</div>
+    <div class="boot-subtitle">Terminal AI Workspace</div>
+    <div class="boot-spinner"><div class="boot-spinner-ring"></div></div>
+    <div class="boot-status" id="bootStatus">Initializing…</div>
+  </div>
+</div>
+
+<!-- Activity Bar -->
+<div class="act-bar" id="actBar">
+  <div class="act-icon active" data-panel="chat" title="Chat"><i class="fa-solid fa-comment-dots"></i></div>
+  <div class="act-icon" data-panel="dashboard" title="Dashboard"><i class="fa-solid fa-gauge-high"></i></div>
+  <div class="act-spacer"></div>
+  <div class="act-icon" data-panel="settings" title="Settings"><i class="fa-solid fa-gear"></i></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+  <div class="sidebar-brand">
+    <div class="brand-logo">W</div>
+    <span class="brand-text" data-i18n="brand_name">WIDDX Nexus</span>
+  </div>
+
+  <!-- New chat button -->
+  <div class="sidebar-new-task" id="sidebarNewTask">
+    <i class="fa-solid fa-plus"></i>
+    <span data-i18n="new_chat">New chat</span>
+  </div>
+
+  <!-- Main navigation with category groups -->
+  <div class="sidebar-nav sidebar-nav-main" id="sidebar-nav-main">
+    <!-- 💬 Chat (always visible) -->
+    <div class="nav-item active" data-view="chat">
+      <i class="fa-solid fa-comment-dots"></i>
+      <span>Chat</span>
+    </div>
+
+    <!-- 📁 Workspace -->
+    <div class="nav-category">
+      <div class="nav-category-header open" data-category="workspace">
+        <i class="fa-solid fa-folder-open"></i>
+        <span>Workspace</span>
+        <i class="nav-category-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nav-category-body open" id="cat-workspace">
+        <div class="nav-item" data-view="files"><i class="fa-regular fa-file"></i><span>Files</span></div>
+        <div class="nav-item" data-view="git"><i class="fa-solid fa-code-branch"></i><span>Git</span><span class="nav-badge" id="git-badge"></span></div>
+        <div class="nav-item" data-view="sessions"><i class="fa-solid fa-clock-rotate-left"></i><span>Sessions</span></div>
+        <div class="nav-item" data-view="checkpoints"><i class="fa-solid fa-camera-retro"></i><span>Checkpoints</span></div>
+      </div>
+    </div>
+
+    <!-- ⚙️ Automation -->
+    <div class="nav-category">
+      <div class="nav-category-header" data-category="automation">
+        <i class="fa-solid fa-gears"></i>
+        <span>Automation</span>
+        <i class="nav-category-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nav-category-body" id="cat-automation">
+        <div class="nav-item" data-view="scheduler"><i class="fa-solid fa-calendar-clock"></i><span>Scheduler</span></div>
+        <div class="nav-item" data-view="workflows"><i class="fa-solid fa-diagram-project"></i><span>Workflows</span></div>
+        <div class="nav-item" data-view="delegation"><i class="fa-solid fa-sitemap"></i><span>Delegation</span></div>
+        <div class="nav-item" data-view="gateway"><i class="fa-solid fa-tower-broadcast"></i><span>Gateway</span></div>
+      </div>
+    </div>
+
+    <!-- 🧠 Intelligence -->
+    <div class="nav-category">
+      <div class="nav-category-header" data-category="intelligence">
+        <i class="fa-solid fa-brain"></i>
+        <span>Intelligence</span>
+        <i class="nav-category-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nav-category-body" id="cat-intelligence">
+        <div class="nav-item" data-view="memory"><i class="fa-solid fa-database"></i><span>Memory</span></div>
+        <div class="nav-item" data-view="skills"><i class="fa-solid fa-toolbox"></i><span>Skills</span></div>
+        <div class="nav-item" data-view="mcp"><i class="fa-solid fa-plug"></i><span>MCP</span></div>
+        <div class="nav-item" data-view="plugins"><i class="fa-solid fa-puzzle-piece"></i><span>Plugins</span></div>
+      </div>
+    </div>
+
+    <!-- 🖥 System -->
+    <div class="nav-category">
+      <div class="nav-category-header" data-category="system">
+        <i class="fa-solid fa-display"></i>
+        <span>System</span>
+        <i class="nav-category-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nav-category-body" id="cat-system">
+        <div class="nav-item" data-view="dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></div>
+        <div class="nav-item" data-view="activity"><i class="fa-solid fa-chart-simple"></i><span>Activity</span></div>
+        <div class="nav-item" data-view="doctor"><i class="fa-solid fa-stethoscope"></i><span>Doctor</span></div>
+        <div class="nav-item" data-view="debug"><i class="fa-solid fa-bug"></i><span>Debug</span></div>
+        <div class="nav-item" data-view="tokenbudget"><i class="fa-solid fa-coins"></i><span>Token Budget</span></div>
+      </div>
+    </div>
+
+    <!-- 🔧 Settings -->
+    <div class="nav-category">
+      <div class="nav-category-header" data-category="settings">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Settings</span>
+        <i class="nav-category-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nav-category-body" id="cat-settings">
+        <div class="nav-item" data-view="settings"><i class="fa-solid fa-wrench"></i><span>Model Setup</span></div>
+        <div class="nav-item" data-view="permissions"><i class="fa-solid fa-shield"></i><span>Permissions</span></div>
+        <div class="nav-item" data-view="apikeys"><i class="fa-solid fa-key"></i><span>API Keys</span></div>
+        <div class="nav-item" data-view="proxy"><i class="fa-solid fa-globe"></i><span>Proxy</span></div>
+        <div class="nav-item" data-view="gguf"><i class="fa-solid fa-microchip"></i><span>GGUF</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session search + list at bottom -->
+  <div class="sidebar-sessions">
+    <div class="sidebar-section-header">SESSIONS</div>
+    <input type="text" class="sidebar-search" id="sidebarSearch" placeholder="Search sessions..." autocomplete="off">
+    <nav class="sidebar-nav" id="sidebar-session-list"></nav>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-avatar">W</div>
+    <div class="user-meta">
+      <div class="user-name" data-i18n="user_name">WIDDX User</div>
+      <div class="user-plan" id="plan-badge" data-i18n="user_connected">Connected</div>
+    </div>
+    <div class="user-actions">
+      <button id="btn-refresh-nav" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar backdrop (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<!-- Floating sidebar toggle -->
+<button class="sidebar-floating-toggle" id="sidebarFloatingToggle" title="Toggle sidebar (Ctrl+B)">
+  <i class="fa-solid fa-chevron-left"></i>
+</button>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" role="main">
+  <div class="main-wrapper">
+
+    <div class="chat-container">
+
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="model-selector" id="modelSelector">
+          <span id="modelName">Loading…</span>
+          <i class="fa-solid fa-chevron-down model-chevron"></i>
+        </div>
+        <div class="model-dropdown" id="modelDropdown" style="display:none">
+          <div class="model-dropdown-header" data-i18n="header_switch_model">Switch Model</div>
+          <div class="model-dropdown-list" id="modelDropdownList"></div>
+          <div class="model-dropdown-footer" id="modelDropdownFooter" data-i18n="header_open_settings">Open Settings</div>
+        </div>
+        <div class="chat-header-spacer"></div>
+        <div class="chat-header-actions">
+          <button class="header-btn" id="starBtn" data-i18n="header_star" data-i18n-attr="title" title="Star this chat">
+            <i class="fa-solid fa-star"></i>
+          </button>
+          <button class="header-btn" data-click="export-chat" data-i18n="header_share" data-i18n-attr="title" title="Export conversation">
+            <i class="fa-solid fa-share-nodes"></i>
+          </button>
+          <button class="header-btn" data-click="open-command-palette" data-i18n="header_commands" data-i18n-attr="title" title="Commands (Ctrl+K)">
+            <i class="fa-solid fa-terminal"></i>
+          </button>
+          <button class="theme-btn" id="autoModeBtn" data-click="toggle-auto-mode" title="Autonomous Mode: AI plans, executes, verifies, and learns — fully autonomous">
+            <i class="fa-solid fa-robot"></i>
+            <span id="autoModeLabel" style="font-size:9px;margin-left:3px;font-weight:700">AUTO</span>
+          </button>
+<button class="lang-btn" id="langToggleBtn" data-click="lang-toggle" title="Switch language" data-i18n="header_toggle_lang">عربي</button>
+<button class="theme-btn" data-click="toggle-theme" data-i18n="header_toggle_theme" data-i18n-attr="title" title="Toggle theme">
+            <i class="fa-solid fa-sun icon-sun"></i>
+            <i class="fa-solid fa-moon icon-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages -->
+      <div class="messages-area" id="messagesArea" role="log" aria-live="polite">
+        <div class="onboarding" id="onboarding">
+          <div class="onboarding-logo">W</div>
+          <h1 data-i18n="welcome_title">Welcome to WIDDX Nexus</h1>
+          <p><span data-i18n="welcome_sub">Terminal AI Workspace — by</span> <strong data-i18n="welcome_by">MUHAMMAD MUSLIH</strong></p>
+          <div class="onboarding-actions">
+            <div class="onboarding-card" data-click="send-onboarding" data-msg="Hello! What can you do?">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span data-i18n="ob_intro">Introduce yourself</span>
+            </div>
+            <div class="onboarding-card" data-click="send-onboarding" data-msg="Write a Python script to analyze text files in a folder">
+              <i class="fa-solid fa-code"></i>
+              <span data-i18n="ob_code">Write code</span>
+            </div>
+            <div class="onboarding-card" data-click="send-onboarding" data-msg="Research the latest AI agent frameworks">
+              <i class="fa-solid fa-compass"></i>
+              <span data-i18n="ob_research">Research</span>
+            </div>
+            <div class="onboarding-card" data-click="send-onboarding" data-msg="Explain how the UIL pipeline works in WIDDX">
+              <i class="fa-solid fa-brain"></i>
+              <span data-i18n="ob_howwiddx">How WIDDX works</span>
+            </div>
+          </div>
+          <div class="onboarding-tips">
+            <span><kbd>Ctrl+K</kbd> <span data-i18n="tip_commands">Commands</span></span>
+            <span><kbd>/</kbd> <span data-i18n="tip_slash">Slash commands</span></span>
+            <span><kbd>Ctrl+B</kbd> <span data-i18n="tip_nav">Navigation</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll to bottom -->
+      <button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom">
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+
+      <!-- Typing -->
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span class="typing-label" data-i18n="status_processing">WIDDX is processing…</span>
+      </div>
+
+      <!-- Activity Bar -->
+      <div class="activity-bar">
+        <div class="activity-status">
+          <span class="activity-dot"></span>
+          <span class="activity-label" id="activityLabel" data-i18n="status_ready">Ready</span>
+          <span class="activity-divider"></span>
+          <span class="activity-tool" id="activityTool">—</span>
+        </div>
+        <div class="activity-actions">
+          <button class="activity-btn" data-click="toggle-computer" data-i18n="panel_computer" data-i18n-attr="title" title="Toggle computer panel">
+            <i class="fa-solid fa-desktop"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="input-area-wrapper">
+        <div class="input-container">
+          <textarea class="input-textarea" id="messageInput" data-i18n="input_placeholder" data-i18n-attr="placeholder" placeholder="Send a message to WIDDX..." rows="1" onkeydown="if(window.handleInputKey)handleInputKey(event)"></textarea>
+          <div class="input-toolbar">
+            <div class="input-toolbar-left">
+              <button class="input-toolbar-btn" data-click="open-command-palette" data-i18n="cmd_actions" data-i18n-attr="title" title="Commands">
+                <i class="fa-solid fa-terminal"></i>
+              </button>
+              <button class="input-toolbar-btn" id="micBtn" data-click="toggle-voice-input" title="Voice input">
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+              <label class="input-toolbar-btn" title="Upload image (vision)" style="cursor:pointer">
+                <i class="fa-solid fa-image"></i>
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+              </label>
+              <label class="input-toolbar-btn" title="Attach file" style="cursor:pointer">
+                <i class="fa-solid fa-paperclip"></i>
+                <input type="file" id="fileUpload" style="display:none" onchange="handleFileUpload(event)">
+              </label>
+            </div>
+            <button class="cancel-btn" id="cancelBtn" title="Stop"><i class="fa-solid fa-stop"></i></button>
+        <button class="send-btn" id="sendBtn" title="Send">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+        <div class="input-hint" data-i18n="input_hint">Enter to send · Shift+Enter for new line · Ctrl+K for commands</div>
+        <div class="disclaimer" data-i18n="disclaimer">WIDDX may produce inaccurate information. Verify important outputs.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL — Collapsed by default, opened via Ctrl+J -->
+    <aside class="right-panel collapsed" id="computerPanel">
+      <div class="right-panel-header">
+        <span class="status-dot running"></span>
+        <span class="right-panel-title">TOOLS</span>
+        <span class="right-panel-subtitle"><i class="fa-solid fa-circle"></i> <span data-i18n="panel_live">Live</span></span>
+        <span class="right-panel-header-spacer"></span>
+        <button class="right-panel-close" data-click="toggle-computer" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="right-panel-tabs">
+        <div class="right-panel-tab active" data-click="switch-right-tab" data-tab="terminal"><i class="fa-solid fa-terminal"></i> <span data-i18n="tab_terminal">Terminal</span></div>
+        <div class="right-panel-tab" data-click="switch-right-tab" data-tab="browser"><i class="fa-solid fa-globe"></i> <span data-i18n="tab_browser">Browser</span></div>
+        <div class="right-panel-tab" data-click="switch-right-tab" data-tab="processes"><i class="fa-solid fa-microchip"></i> <span>Processes</span></div>
+        <div class="right-panel-tab" data-click="switch-right-tab" data-tab="screenshot"><i class="fa-solid fa-camera"></i> <span>Screenshot</span></div>
+      </div>
+      <div class="right-panel-body" id="panelBody">
+        <div class="panel-desktop-view">
+          <i class="fa-solid fa-display"></i>
+          <div class="panel-desktop-text" data-i18n="panel_loading">Loading system info...</div>
+        </div>
+      </div>
+      <div class="right-panel-footer">
+        <span class="panel-footer-dot"></span>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+          <span class="progress-count" id="progressCount" data-i18n="panel_ready">Ready</span>
+        </div>
+        <span class="panel-footer-spacer"></span>
+        <span id="elapsedTime">—</span>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Command Palette -->
+<div class="cmd-palette-overlay" id="cmdPaletteOverlay" data-click="close-palette-overlay">
+  <div class="cmd-palette">
+    <input type="text" class="cmd-palette-input" id="cmdPaletteInput" data-i18n="cmd_placeholder" data-i18n-attr="placeholder" placeholder="Type a command or search…" autocomplete="off">
+    <div class="cmd-palette-results" id="cmdPaletteResults">
+      <div class="cmd-palette-section" data-i18n="cmd_actions">Actions</div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="new-task"><i class="fa-solid fa-plus"></i> <span data-i18n="cmd_new_chat">New Chat</span><span class="shortcut">Ctrl+N</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="toggle-sidebar"><i class="fa-solid fa-sidebar"></i> <span data-i18n="cmd_toggle_nav">Toggle Navigation</span><span class="shortcut">Ctrl+B</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="toggle-panel"><i class="fa-solid fa-desktop"></i> <span data-i18n="cmd_toggle_panel">Toggle Computer Panel</span><span class="shortcut">Ctrl+J</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="toggle-theme"><i class="fa-solid fa-circle-half-stroke"></i> <span data-i18n="cmd_toggle_theme">Toggle Theme</span></div>
+      <div class="cmd-palette-item" data-click="lang-toggle"><i class="fa-solid fa-language"></i> <span data-i18n="cmd_toggle_lang">Switch Language</span></div>
+      <div class="cmd-palette-section" data-i18n="cmd_views">Views</div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-chat"><i class="fa-solid fa-comment-dots"></i> <span data-i18n="cmd_view_chat">Chat</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-dashboard"><i class="fa-solid fa-gauge-high"></i> <span data-i18n="cmd_view_dashboard">Dashboard</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-settings"><i class="fa-solid fa-sliders"></i> <span data-i18n="cmd_view_settings">Settings</span></div>
+      <div class="cmd-palette-section" data-i18n="cmd_tools">Tools</div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-scheduled"><i class="fa-solid fa-calendar-clock"></i> <span data-i18n="cmd_scheduler">Task Scheduler</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-sessions"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="cmd_sessions">Sessions</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-memory"><i class="fa-solid fa-brain"></i> <span data-i18n="cmd_memory">Memory</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-skills"><i class="fa-solid fa-toolbox"></i> <span data-i18n="cmd_skills">Skills</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-gateway"><i class="fa-solid fa-tower-broadcast"></i> <span data-i18n="cmd_gateway">Gateway</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-tasks"><i class="fa-solid fa-diagram-project"></i> <span data-i18n="cmd_delegation">Delegation</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-activity"><i class="fa-solid fa-chart-simple"></i> <span data-i18n="cmd_activity">Activity</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-mcp"><i class="fa-solid fa-plug"></i> <span>MCP Servers</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-git"><i class="fa-solid fa-code-branch"></i> <span>Git</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-checkpoints"><i class="fa-solid fa-camera-retro"></i> <span>Checkpoints</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-doctor"><i class="fa-solid fa-stethoscope"></i> <span>Doctor</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-debug"><i class="fa-solid fa-bug"></i> <span>Debug</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-permissions"><i class="fa-solid fa-shield"></i> <span>Permissions</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-plugins"><i class="fa-solid fa-puzzle-piece"></i> <span>Plugins</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-workflows"><i class="fa-solid fa-diagram-project"></i> <span>Workflows</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-proxy"><i class="fa-solid fa-globe"></i> <span>Proxy Settings</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-gguf"><i class="fa-solid fa-microchip"></i> <span>GGUF Models</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-manifest"><i class="fa-solid fa-file-invoice"></i> <span>Manifest</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-tokenbudget"><i class="fa-solid fa-coins"></i> <span>Token Budget</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-autocommit"><i class="fa-solid fa-arrows-rotate"></i> <span>Auto-Commit</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="view-apikeys"><i class="fa-solid fa-key"></i> <span>API Keys</span></div>
+      <div class="cmd-palette-section" data-i18n="cmd_conversation">Conversation</div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="clear-chat"><i class="fa-solid fa-eraser"></i> <span data-i18n="cmd_clear">Clear Conversation</span></div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="export"><i class="fa-solid fa-file-export"></i> <span data-i18n="cmd_export">Export</span></div>
+      <div class="cmd-palette-section" data-i18n="cmd_help">Help</div>
+      <div class="cmd-palette-item" data-click="exec-palette" data-action="shortcuts"><i class="fa-solid fa-keyboard"></i> <span data-i18n="cmd_shortcuts">Keyboard Shortcuts</span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

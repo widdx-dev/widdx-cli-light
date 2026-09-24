@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WIDDX Nexus</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #252525;
+      --bg-elevated: #2d2d2d;
+      --text-primary: #ffffff;
+      --text-secondary: #c0c0c0;
+      --text-muted: #808080;
+      --accent: #5b8def;
+      --accent-subtle: rgba(91, 141, 239, 0.1);
+      --success: #30d158;
+      --danger: #ff3b30;
+      --border: #333333;
+      --border-subtle: #2a2a2a;
+      --font-sans: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--bg-secondary); border-left: 1px solid var(--border-subtle); padding: 20px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar-header { display: flex; align-items: center; gap: 10px; padding: 0 8px 20px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 20px; }
+    .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #7c5cfc); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; }
+    .brand-info h1 { font-size: 14px; font-weight: 600; }
+    .brand-info span { font-size: 10px; color: var(--text-muted); }
+    .nav-section { margin-bottom: 20px; }
+    .nav-section-title { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 10px; margin-bottom: 6px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+    .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .nav-item.active { background: var(--accent-subtle); color: var(--accent); font-weight: 500; }
+    .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+    .provider-card { display: flex; align-items: center; gap: 8px; padding: 10px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-subtle); }
+    .provider-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .provider-name { font-size: 12px; font-weight: 600; }
+    .provider-model { font-size: 10px; color: var(--text-muted); }
+    .main { display: flex; flex-direction: column; background: var(--bg-primary); }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-secondary); position: sticky; top: 0; z-index: 10; }
+    .header-title { font-size: 15px; font-weight: 600; }
+    .header-subtitle { font-size: 11px; color: var(--text-muted); margin-right: 8px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .btn-primary { background: var(--text-primary); color: var(--bg-primary); }
+    .btn-primary:hover { background: var(--text-secondary); }
+    .chat-container { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px 24px; max-width: 500px; margin: 0 auto; }
+    .welcome-logo { width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #7c5cfc); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: white; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(91, 141, 239, 0.3); }
+    .welcome-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .welcome-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.7; }
+    .welcome-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .welcome-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-secondary); transition: all 0.15s; }
+    .welcome-btn:hover { border-color: var(--accent); color: var(--text-primary); background: var(--accent-subtle); }
+    .message { display: flex; gap: 12px; max-width: 680px; }
+    .message-avatar { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .message-avatar.user { background: var(--accent); color: white; }
+    .message-avatar.assistant { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border); }
+    .message-content { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .message-header { display: flex; align-items: center; gap: 6px; }
+    .message-author { font-size: 12px; font-weight: 600; }
+    .message-time { font-size: 10px; color: var(--text-muted); }
+    .message-body { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+    .input-area { padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--bg-secondary); }
+    .input-container { display: flex; gap: 10px; align-items: flex-end; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; transition: border-color 0.15s; }
+    .input-container:focus-within { border-color: var(--accent); }
+    .input-textarea { flex: 1; background: transparent; border: none; outline: none; font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); resize: none; min-height: 36px; max-height: 150px; line-height: 1.6; padding: 6px 4px; }
+    .input-textarea::placeholder { color: var(--text-muted); }
+    .input-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+    .input-btn:hover { color: var(--text-primary); background: var(--bg-elevated); }
+    .input-btn.send { background: var(--text-primary); color: var(--bg-primary); }
+    .input-btn.send:hover { background: var(--text-secondary); }
+    .input-hint { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 10px; color: var(--text-muted); }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    @media (max-width: 768px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">W</div>
+        <div class="brand-info"><h1>WIDDX Nexus</h1><span>v3.2.0</span></div>
+      </div>
+      <nav class="nav-section">
+        <div class="nav-section-title">الرئيسي</div>
+        <a class="nav-item active" data-section="chat" onclick="showSection(this)"><span>💬</span><span>المحادثة</span></a>
+        <a class="nav-item" data-section="tools" onclick="showSection(this)"><span>🛠️</span><span>الأدوات</span></a>
+        <a class="nav-item" data-section="skills" onclick="showSection(this)"><span>🎯</span><span>المهارات</span></a>
+        <a class="nav-item" data-section="history" onclick="showSection(this)"><span>📋</span><span>السجل</span></a>
+      </nav>
+      <nav class="nav-section">
+        <div class="nav-section-title">النظام</div>
+        <a class="nav-item" data-section="dashboard" onclick="showSection(this)"><span>📊</span><span>لوحة القيادة</span></a>
+        <a class="nav-item" data-section="memory" onclick="showSection(this)"><span>💾</span><span>الذاكرة</span></a>
+        <a class="nav-item" data-section="settings" onclick="showSection(this)"><span>⚙️</span><span>الإعدادات</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="provider-card">
+          <div class="provider-dot"></div>
+          <div><div class="provider-name">DeepSeek</div><div class="provider-model">deepseek-chat</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <div><span class="header-title" id="pageTitle">محادثة جديدة</span><span class="header-subtitle">آخر نشاط: الآن</span></div>
+        <div><button class="btn btn-ghost" onclick="clearChat()">مسح</button><button class="btn btn-primary" onclick="clearChat()">محادثة جديدة</button></div>
+      </header>
+
+      <div class="chat-container" id="chatContainer">
+        <div class="welcome" id="welcome">
+          <div class="welcome-logo">W</div>
+          <h2 class="welcome-title">مرحباً بك في WIDDX Nexus</h2>
+          <p class="welcome-subtitle">نظام معرفي متكامل للتطوير الذاتي والتحكم الذكي.<br>ابدأ محادثة أو اختر أحد الإجراءات السريعة.</p>
+          <div class="welcome-actions">
+            <button class="welcome-btn" onclick="quickAction('اكتب كوداً بلغة Python لـ')">📝 كتابة كود</button>
+            <button class="welcome-btn" onclick="quickAction('حلل هذا المشروع وأعطني ملخصاً عن')">🔍 تحليل مشروع</button>
+            <button class="welcome-btn" onclick="quickAction('ساعدني في إصلاح هذا الخطأ:')">🐛 إصلاح خطأ</button>
+            <button class="welcome-btn" onclick="quickAction('اكتب توثيقاً لـ')">📖 توثيق</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area" id="inputArea">
+        <div class="input-container">
+          <textarea class="input-textarea" id="inputText" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
+          <button class="input-btn send" onclick="sendMessage()" title="إرسال">↑</button>
+        </div>
+        <div class="input-hint"><span>Enter للإرسال</span><span>Shift+Enter لسطر جديد</span></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    var messages = [];
+    var currentSection = 'chat';
+    
+    function showSection(el) {
+      var section = el.getAttribute('data-section');
+      currentSection = section;
+      document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
+      el.classList.add('active');
+      
+      var container = document.getElementById('chatContainer');
+      var inputArea = document.getElementById('inputArea');
+      var pageTitle = document.getElementById('pageTitle');
+      
+      if (section === 'chat') {
+        pageTitle.textContent = 'محادثة جديدة';
+        inputArea.style.display = 'block';
+        clearChat();
+      } else if (section === 'tools') {
+        pageTitle.textContent = 'الأدوات';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">🛠️</div><h2 class="welcome-title">الأدوات</h2><p class="welcome-subtitle">21 أداة متاحة<br>تشمل: كتابة ملفات، تنفيذ أوامر، بحث، تحليل</p></div>';
+      } else if (section === 'skills') {
+        pageTitle.textContent = 'المهارات';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">🎯</div><h2 class="welcome-title">المهارات</h2><p class="welcome-subtitle">المهارات تُفعّل باستخدام !اسم_المهارة<br>مثال: !debug لإصلاح الأخطاء</p></div>';
+      } else if (section === 'history') {
+        pageTitle.textContent = 'السجل';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">📋</div><h2 class="welcome-title">السجل</h2><p class="welcome-subtitle">آخر 50 رسالة<br>يتم الحفظ تلقائياً</p></div>';
+      } else if (section === 'dashboard') {
+        pageTitle.textContent = 'لوحة القيادة';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">📊</div><h2 class="welcome-title">لوحة القيادة</h2><p class="welcome-subtitle">المزود: DeepSeek<br>النموذج: deepseek-chat<br>الحالة: متصل ✅</p></div>';
+      } else if (section === 'memory') {
+        pageTitle.textContent = 'الذاكرة';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">💾</div><h2 class="welcome-title">الذاكرة</h2><p class="welcome-subtitle">7 حقائق محفوظة<br>استخدم /remember لإضافة جديدة</p></div>';
+      } else if (section === 'settings') {
+        pageTitle.textContent = 'الإعدادات';
+        inputArea.style.display = 'none';
+        container.innerHTML = '<div class="welcome"><div class="welcome-logo">⚙️</div><h2 class="welcome-title">الإعدادات</h2><p class="welcome-subtitle">المزود: DeepSeek<br>النموذج: deepseek-chat<br>درجة الحرارة: 0.7</p></div>';
+      }
+    }
+    
+    function quickAction(text) {
+      document.getElementById('inputText').value = text;
+      document.getElementById('inputText').focus();
+    }
+    
+    function clearChat() {
+      messages = [];
+      document.getElementById('chatContainer').innerHTML = '<div class="welcome" id="welcome"><div class="welcome-logo">W</div><h2 class="welcome-title">مرحباً بك في WIDDX Nexus</h2><p class="welcome-subtitle">نظام معرفي متكامل للتطوير الذاتي والتحكم الذكي.<br>ابدأ محادثة أو اختر أحد الإجراءات السريعة.</p><div class="welcome-actions"><button class="welcome-btn" onclick="quickAction(\'اكتب كوداً بلغة Python لـ\')">📝 كتابة كود</button><button class="welcome-btn" onclick="quickAction(\'حلل هذا المشروع وأعطني ملخصاً عن\')">🔍 تحليل مشروع</button><button class="welcome-btn" onclick="quickAction(\'ساعدني في إصلاح هذا الخطأ:\')">🐛 إصلاح خطأ</button><button class="welcome-btn" onclick="quickAction(\'اكتب توثيقاً لـ\')">📖 توثيق</button></div></div>';
+    }
+    
+    function addMessage(role, content) {
+      var container = document.getElementById('chatContainer');
+      var welcome = document.getElementById('welcome');
+      if (welcome) welcome.remove();
+      var div = document.createElement('div');
+      div.className = 'message';
+      var avatar = role === 'user' ? 'U' : 'W';
+      var author = role === 'user' ? 'أنت' : 'WIDDX Nexus';
+      var time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      div.innerHTML = '<div class="message-avatar ' + role + '">' + avatar + '</div><div class="message-content"><div class="message-header"><span class="message-author">' + author + '</span><span class="message-time">  •  ' + time + '</span></div><div class="message-body">' + content + '</div></div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function sendMessage() {
+      var input = document.getElementById('inputText');
+      var text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      addMessage('user', text);
+      messages.push({ role: 'user', content: text });
+      
+      var container = document.getElementById('chatContainer');
+      var typing = document.createElement('div');
+      typing.className = 'message';
+      typing.id = 'typing';
+      typing.innerHTML = '<div class="message-avatar assistant">W</div><div class="message-content"><div class="message-body" style="color: var(--text-muted);">جاري التفكير...</div></div>';
+      container.appendChild(typing);
+      container.scrollTop = container.scrollHeight;
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/chat', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 120000;
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var typingEl = document.getElementById('typing');
+          if (typingEl) typingEl.remove();
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              if (data.error) {
+                addMessage('assistant', '❌ ' + data.error);
+              } else {
+                addMessage('assistant', data.content);
+                messages.push({ role: 'assistant', content: data.content });
+                
+                // Add execute button if response contains code
+                if (data.content.includes('```') || data.content.includes('<html') || data.content.includes('<!DOCTYPE')) {
+                  addExecuteButton(data.content);
+                }
+              }
+            } catch(e) {
+              addMessage('assistant', '❌ خطأ في تحليل الرد');
+            }
+          } else {
+            addMessage('assistant', '❌ خطأ في الاتصال: ' + xhr.status);
+          }
+        }
+      };
+      xhr.onerror = function() {
+        var typingEl = document.getElementById('typing');
+        if (typingEl) typingEl.remove();
+        addMessage('assistant', '❌ خطأ في الاتصال بالخادم');
+      };
+      xhr.ontimeout = function() {
+        var typingEl = document.getElementById('typing');
+        if (typingEl) typingEl.remove();
+        addMessage('assistant', '❌ انتهت مهلة الاتصال');
+      };
+      xhr.send(JSON.stringify({ messages: messages }));
+    }
+    
+    function addExecuteButton(content) {
+      var container = document.getElementById('chatContainer');
+      var div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = '<div class="message-avatar assistant">W</div><div class="message-content"><button class="welcome-btn" onclick="executeCode(this, \'content\')" style="background: var(--success); color: white; border: none;">▶ تنفيذ وإنشاء الملفات</button></div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      // Store content for execution
+      div.dataset.content = content;
+    }
+    
+    function executeCode(btn, type) {
+      var content = btn.parentElement.parentElement.dataset.content;
+      btn.textContent = '⏳ جاري التنفيذ...';
+      btn.disabled = true;
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/execute', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 30000;
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              if (data.files && data.files.length > 0) {
+                btn.textContent = '✅ تم إنشاء ' + data.files.length + ' ملف';
+                btn.style.background = 'var(--accent)';
+                // Show files
+                var container = document.getElementById('chatContainer');
+                var div = document.createElement('div');
+                div.className = 'message';
+                div.innerHTML = '<div class="message-avatar assistant">W</div><div class="message-content"><div class="message-body">📁 الملفات المُنشأة:<br>' + data.files.map(f => '&nbsp;&nbsp;• ' + f).join('<br>') + '</div></div>';
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+              } else {
+                btn.textContent = '⚠️ لم يتم العثور على ملفات';
+                btn.style.background = 'var(--warning)';
+              }
+            } catch(e) {
+              btn.textContent = '❌ خطأ';
+            }
+          } else {
+            btn.textContent = '❌ خطأ في الخادم';
+          }
+        }
+      };
+      xhr.send(JSON.stringify({ content: content }));
+    }
+    
+    document.getElementById('inputText').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

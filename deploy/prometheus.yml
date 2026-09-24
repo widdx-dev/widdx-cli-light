@@ -1,0 +1,39 @@
+# ===========================================================================
+# WIDDX Nexus — Prometheus Scrape Configuration
+# ===========================================================================
+# Usage: prometheus --config.file=deploy/prometheus.yml
+# ===========================================================================
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  # ── WIDDX Nexus API ──────────────────────────────────
+  - job_name: 'widdx-nexus'
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['127.0.0.1:8001']  # API server
+        labels:
+          service: 'widdx-api'
+      - targets: ['127.0.0.1:8000']  # Web server
+        labels:
+          service: 'widdx-web'
+
+  # ── Docker / Node metrics ────────────────────────────
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['127.0.0.1:9323']  # Docker daemon metrics
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['127.0.0.1:9100']  # Node exporter

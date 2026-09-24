@@ -1,0 +1,18 @@
+# ═══════════════════════════════════════════════════════════════════
+# WIDDX Nexus — ConfigMap (non-secret runtime configuration)
+# ═══════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: widdx-nexus-config
+  namespace: widdx
+  labels:
+    app.kubernetes.io/name: widdx-nexus
+    app.kubernetes.io/part-of: widdx
+data:
+  # Comma-separated allowed browser origins for CORS
+  WIDDX_CORS_ORIGINS: "https://nexus.example.com"
+  # Multi-tenancy: off | keymap | header  (see core/tenancy.py)
+  WIDDX_TENANT_MODE: "off"
+  # Anonymous telemetry: set to "1" to opt out completely
+  WIDDX_TELEMETRY_DISABLED: "0"

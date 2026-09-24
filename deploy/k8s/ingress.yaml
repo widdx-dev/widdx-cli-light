@@ -1,0 +1,42 @@
+# ═══════════════════════════════════════════════════════════════════
+# WIDDX Nexus — Kubernetes Ingress (Task 4.4)
+# ═══════════════════════════════════════════════════════════════════
+# nginx-ingress + cert-manager (TLS termination).
+# Replace `nexus.example.com` with your real hostname and set the
+# cert-manager issuer to match your cluster.
+# ═══════════════════════════════════════════════════════════════════
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: widdx-nexus
+  namespace: widdx
+  labels:
+    app.kubernetes.io/name: widdx-nexus
+    app.kubernetes.io/part-of: widdx
+  annotations:
+    # TLS via cert-manager
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # WebSocket support (the UI uses ws:// for streaming)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    # Basic rate limiting at the edge (defense in depth)
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - nexus.example.com
+      secretName: widdx-nexus-tls
+  rules:
+    - host: nexus.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: widdx-nexus
+                port:
+                  number: 80

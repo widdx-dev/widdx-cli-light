@@ -1,0 +1,24 @@
+# ═══════════════════════════════════════════════════════════════════
+# WIDDX Nexus — Kubernetes Service (Task 4.4)
+# ═══════════════════════════════════════════════════════════════════
+# Internal ClusterIP. Expose externally via ingress.yaml.
+# ═══════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Service
+metadata:
+  name: widdx-nexus
+  namespace: widdx
+  labels:
+    app.kubernetes.io/name: widdx-nexus
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: widdx
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: widdx-nexus
+    app.kubernetes.io/component: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

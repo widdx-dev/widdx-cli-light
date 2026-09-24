@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WIDDX Nexus — Admin Dashboard</title>
+<style>
+  :root {
+    --bg: #0b0f17; --panel: #131a26; --panel2: #0f1520; --border: #1f2b3d;
+    --text: #e6edf7; --muted: #8ea0bd; --accent: #4f9dff; --green: #2ecc71;
+    --red: #ff5c5c; --amber: #f5b041; --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+  }
+  header {
+    display: flex; align-items: center; gap: 14px; padding: 18px 26px;
+    border-bottom: 1px solid var(--border); background: var(--panel2);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header .logo { font-size: 22px; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  header .spacer { flex: 1; }
+  header .pill {
+    font-size: 11px; padding: 4px 10px; border-radius: 999px;
+    background: #16324f; color: var(--accent); border: 1px solid #23517e;
+  }
+  header .pill.off { background: #3a1d1d; color: var(--red); border-color: #5e2b2b; }
+  main { padding: 26px; max-width: 1180px; margin: 0 auto; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .card .value { font-size: 30px; font-weight: 700; margin-top: 8px; }
+  .card .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  section { margin-top: 28px; }
+  section > h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; background: var(--panel2); }
+  tr:last-child td { border-bottom: none; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin: 6px 0; font-size: 13px; }
+  .bar-row .name { width: 260px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { flex: 1; height: 10px; background: var(--panel2); border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, #2f6fed, #4f9dff); border-radius: 6px; }
+  .bar-row .num { width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
+  .keybar { display: flex; gap: 10px; margin-bottom: 20px; }
+  .keybar input {
+    flex: 1; background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 14px; border-radius: 8px; font-size: 14px; outline: none;
+  }
+  .keybar input:focus { border-color: var(--accent); }
+  button {
+    background: var(--accent); border: none; color: #fff; padding: 10px 18px;
+    border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button.secondary { background: #2a3550; }
+  button.danger { background: #7e2b2b; }
+  button:hover { filter: brightness(1.1); }
+  .banner {
+    padding: 14px 18px; border-radius: 10px; margin-bottom: 18px; font-size: 14px;
+    border: 1px solid var(--border); background: var(--panel);
+  }
+  .banner.err { border-color: #5e2b2b; background: #2a1515; color: #ffb4b4; }
+  .banner.ok { border-color: #2b5e3a; background: #12271a; color: #b4ffcf; }
+  .muted { color: var(--muted); }
+  #content.loading { opacity: .5; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px; }
+  code { background: var(--panel2); padding: 2px 6px; border-radius: 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">🛰️</span>
+  <div>
+    <h1>WIDDX Nexus — Admin Dashboard</h1>
+    <div class="sub">Operational overview &amp; anonymous telemetry</div>
+  </div>
+  <span class="spacer"></span>
+  <span id="status-pill" class="pill off">connecting…</span>
+</header>
+
+<main>
+  <div class="keybar">
+    <input id="admin-key" type="password" placeholder="Admin key (WIDDX_ADMIN_KEY) — stored only in this tab" autocomplete="off" />
+    <button onclick="loadAll()">Connect</button>
+    <button class="secondary" onclick="autoRefresh()">Refresh</button>
+  </div>
+
+  <div id="banner"></div>
+
+  <div id="content" class="loading">
+    <div class="grid" id="cards"></div>
+
+    <section>
+      <h2>Telemetry — Top Routes</h2>
+      <div id="routes" class="card"><span class="muted">No data yet.</span></div>
+    </section>
+
+    <section>
+      <h2>Telemetry — Events</h2>
+      <div id="events" class="card"><span class="muted">No data yet.</span></div>
+    </section>
+
+    <section>
+      <h2>Tenants</h2>
+      <table id="tenants">
+        <thead><tr><th>Tenant</th><th>Sessions</th><th>Memories</th><th>DB Size</th><th>Status</th></tr></thead>
+        <tbody><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Maintenance</h2>
+      <div class="card">
+        <p class="muted">Reset all collected anonymous telemetry events. This cannot be undone.</p>
+        <button class="danger" onclick="resetTelemetry()">Reset Telemetry</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  WIDDX Nexus Admin · telemetry is anonymous &amp; opt-out via <code>WIDDX_TELEMETRY_DISABLED=1</code>
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const KEY_STORAGE = "widdx_admin_key";
+
+function getKey() { return $("admin-key").value || sessionStorage.getItem(KEY_STORAGE) || ""; }
+function saveKey() { if ($("admin-key").value) sessionStorage.setItem(KEY_STORAGE, $("admin-key").value); }
+
+function headers() { return { "X-Admin-Key": getKey() }; }
+
+function banner(msg, kind) {
+  const el = $("banner");
+  if (!msg) { el.innerHTML = ""; return; }
+  el.className = "banner " + (kind || "");
+  el.textContent = msg;
+}
+
+function setPill(authed, enabled) {
+  const pill = $("status-pill");
+  if (!enabled) { pill.textContent = "disabled (set WIDDX_ADMIN_KEY)"; pill.className = "pill off"; }
+  else if (authed) { pill.textContent = "authenticated"; pill.className = "pill"; }
+  else { pill.textContent = "not authenticated"; pill.className = "pill off"; }
+}
+
+function card(label, value, hint) {
+  return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div><div class="hint">${hint || ""}</div></div>`;
+}
+
+function fmtUptime(sec) {
+  sec = Math.floor(sec || 0);
+  const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+  return (d ? d + "d " : "") + h + "h " + m + "m";
+}
+
+function fmtBytes(b) {
+  if (!b) return "0 B";
+  const u = ["B", "KB", "MB", "GB"]; let i = 0;
+  while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+  return b.toFixed(i ? 1 : 0) + " " + u[i];
+}
+
+function renderBars(container, obj, emptyText) {
+  const entries = Object.entries(obj || {});
+  if (!entries.length) { container.innerHTML = `<span class="muted">${emptyText}</span>`; return; }
+  const max = Math.max(...entries.map(([, v]) => (typeof v === "object" ? v.count : v))) || 1;
+  container.innerHTML = entries.map(([name, v]) => {
+    const num = typeof v === "object" ? v.count : v;
+    const pct = Math.round((num / max) * 100);
+    return `<div class="bar-row"><span class="name" title="${name}">${name}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
+      <span class="num">${num}</span></div>`;
+  }).join("");
+}
+
+async function loadAll() {
+  saveKey();
+  $("content").classList.add("loading");
+  banner("");
+  try {
+    const status = await (await fetch("/admin/api/status", { headers: headers() })).json();
+    setPill(status.authenticated, status.enabled);
+    if (!status.enabled) { banner(status.message || "Admin dashboard disabled.", "err"); $("content").classList.remove("loading"); return; }
+    if (!status.authenticated) { banner("Invalid admin key. Enter the WIDDX_ADMIN_KEY value above.", "err"); $("content").classList.remove("loading"); return; }
+
+    const [overview, tenants, telemetry] = await Promise.all([
+      fetch("/admin/api/overview", { headers: headers() }).then(r => r.json()),
+      fetch("/admin/api/tenants", { headers: headers() }).then(r => r.json()),
+      fetch("/admin/api/telemetry?days=14", { headers: headers() }).then(r => r.json()),
+    ]);
+
+    $("cards").innerHTML =
+      card("Version", overview.app?.version || "—", "uptime " + fmtUptime(overview.app?.uptime_seconds)) +
+      card("Sessions", overview.data?.sessions ?? "—", overview.data?.messages + " messages") +
+      card("Memories", overview.data?.memories ?? "—", "default store") +
+      card("Memory (RSS)", (overview.runtime?.memory_rss_mb ?? "—") + " MB", "PID " + overview.runtime?.pid) +
+      card("Tenants", (tenants.tenants || []).length, "mode: " + (overview.tenancy?.mode || "off")) +
+      card("Telemetry", telemetry.event_count ?? "—", telemetry.enabled ? "anonymous events (14d)" : "disabled");
+
+    renderBars($("routes"), telemetry.top_routes, "No HTTP requests recorded yet.");
+    renderBars($("events"), telemetry.totals_by_event, "No events recorded yet.");
+
+    const rows = (tenants.tenants || []);
+    $("tenants").querySelector("tbody").innerHTML = rows.length ? rows.map(t =>
+      `<tr><td><b>${t.tenant_id}</b></td><td>${t.sessions}</td><td>${t.memories}</td><td>${fmtBytes(t.db_size_bytes)}</td><td>${t.error ? "⚠ " + t.error : "✅ healthy"}</td></tr>`
+    ).join("") : `<tr><td colspan="5" class="muted">No tenants yet${overview.tenancy?.mode === "off" ? " (multi-tenant mode is off — all data uses the default store)" : ""}.</td></tr>`;
+
+    $("content").classList.remove("loading");
+  } catch (e) {
+    banner("Failed to load dashboard: " + e.message, "err");
+    $("content").classList.remove("loading");
+  }
+}
+
+function autoRefresh() { loadAll(); }
+
+async function resetTelemetry() {
+  if (!confirm("Delete ALL collected anonymous telemetry events?")) return;
+  const res = await fetch("/admin/api/telemetry/reset", { method: "POST", headers: headers() }).then(r => r.json());
+  banner(res.error ? ("Error: " + (res.error || res.detail)) : ("Removed " + (res.removed ?? 0) + " telemetry events."), res.error ? "err" : "ok");
+  loadAll();
+}
+
+// Restore key & initial load
+$("admin-key").value = sessionStorage.getItem(KEY_STORAGE) || "";
+$("admin-key").addEventListener("keydown", (e) => { if (e.key === "Enter") loadAll(); });
+loadAll();
+setInterval(autoRefresh, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "provider": {
+    "name": "deepseek",
+    "model": "deepseek-v4-flash-free"
+  },
+  "max_turns": 20,
+  "temperature": 0.7,
+  "mcp_servers": [
+    {
+      "name": "filesystem",
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    {
+      "name": "memory",
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    {
+      "name": "fetch",
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch",
+        "--ignore-robots-txt"
+      ]
+    },
+    {
+      "name": "sequential-thinking",
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    {
+      "name": "playwright",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp"
+      ]
+    },
+    {
+      "name": "sqlite",
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        ".widdx/data/mcp_data.db"
+      ]
+    }
+  ]
+}

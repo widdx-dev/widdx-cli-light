@@ -1,0 +1,127 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "widdx-nexus"
+version = "3.2.0"
+description = "WIDDX Nexus — Terminal AI Workspace | By MUHAMMAD MUSLIH (widdx.com)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["ai", "chat", "cli", "tui", "terminal", "widdx", "assistant", "nexus", "agent"]
+
+authors = [
+    {name = "MUHAMMAD MUSLIH", email = "muhammed@widdx.com"},
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Terminals :: Terminal Emulators/X Terminals",
+]
+
+dependencies = [
+    "rich>=13.0",
+    "httpx>=0.25",
+    "textual>=1.0",
+    "prompt_toolkit>=3.0",
+    "pygments>=2.15",
+    "python-bidi>=0.6.0",
+    "cryptography>=42.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.0",
+    "build>=1.0",
+    "twine>=4.0",
+    "ruff>=0.9",
+    "mypy>=1.14",
+    "types-requests",
+    "PyYAML>=6.0",
+]
+api = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+]
+gguf = ["llama-cpp-python>=0.2.0"]
+all = ["widdx-nexus[dev,api,gguf,voice,gateway,vision]"]
+voice = ["edge-tts"]
+gateway = ["python-telegram-bot", "discord.py"]
+vision = ["torch", "transformers"]
+
+[project.scripts]
+widdx = "core.cli:run"
+widdx-tui = "tui.app:run_tui"
+widdx-api = "scripts.api_server:main"
+widdx-web = "scripts.web_app:main"
+widdx-we = "widdx_web:main"
+
+[project.urls]
+Homepage = "https://widdx.com"
+Repository = "https://github.com/widdx1990/widdx-cli-light"
+Documentation = "https://widdx.com/docs"
+
+[tool.setuptools]
+py-modules = ["widdx_web"]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["core*", "cli*", "tui*", "scripts*"]
+exclude = ["tests*", "node_modules*", ".widdx*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+tui = ["*.tcss"]
+core = ["py.typed"]
+scripts = ["static/**/*", "../widdx-dashboard.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"
+markers = [
+    "asyncio: mark test as async (uses asyncio event loop)",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = false
+warn_unused_ignores = true
+exclude = ["tests/"]
+
+[tool.coverage.run]
+source = ["core", "tui"]
+omit = ["tests/*", "node_modules*"]
+
+[tool.ruff]
+line-length = 120
+
+# E402 (import not at top) is legitimate in bootstrap files that must fix
+# sys.path / configure logging before importing the package itself.
+[tool.ruff.lint.per-file-ignores]
+"core/agents/agent.py" = ["E402"]
+"core/uil/brain.py" = ["E402"]
+"core/tools/handlers/scaffolder.py" = ["E402"]
+"tui/app.py" = ["E402"]
+"scripts/api_server.py" = ["E402"]
+"scripts/web/server.py" = ["E402"]
+"server.py" = ["E402"]
+"main.py" = ["E402"]
+"tests/test_stress_complex.py" = ["E402"]
+"tests/test_verifier.py" = ["E402"]

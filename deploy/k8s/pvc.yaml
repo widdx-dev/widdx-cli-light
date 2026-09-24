@@ -1,0 +1,26 @@
+# ═══════════════════════════════════════════════════════════════════
+# WIDDX Nexus — Persistent Volume Claim
+# ═══════════════════════════════════════════════════════════════════
+# Stores .widdx/ (SQLite databases, telemetry, tenant data).
+#
+# ⚠ Multi-replica note: ReadWriteOnce only allows ONE node to mount
+# the volume. For replicas > 1 either:
+#   1) use a ReadWriteMany storage class (NFS / CephFS / EFS), or
+#   2) convert the Deployment to a StatefulSet with volumeClaimTemplates,
+#   3) keep replicas: 1.
+# ═══════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: widdx-nexus-data
+  namespace: widdx
+  labels:
+    app.kubernetes.io/name: widdx-nexus
+    app.kubernetes.io/part-of: widdx
+spec:
+  accessModes:
+    - ReadWriteOnce        # change to ReadWriteMany for shared multi-replica storage
+  resources:
+    requests:
+      storage: 2Gi
+  # storageClassName: standard   # set explicitly for your cluster

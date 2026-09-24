@@ -1,0 +1,57 @@
+# ===========================================================================
+# WIDDX Nexus — Prometheus Alert Rules
+# ===========================================================================
+
+groups:
+  - name: widdx_alerts
+    interval: 30s
+    rules:
+      # ── Instance Down ──────────────────────────────────
+      - alert: WIDDXInstanceDown
+        expr: up{job="widdx-nexus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WIDDX Nexus instance {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} has been down for more than 1 minute."
+
+      # ── High Error Rate ────────────────────────────────
+      - alert: WIDDXHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.instance }}"
+          description: "Error rate is {{ $value | humanizePercentage }} over 5 minutes."
+
+      # ── High Latency ───────────────────────────────────
+      - alert: WIDDXHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p95 latency on {{ $labels.instance }}"
+          description: "p95 latency is {{ $value }}s over 5 minutes."
+
+      # ── Memory Usage ───────────────────────────────────
+      - alert: WIDDXHighMemory
+        expr: process_resident_memory_bytes{job="widdx-nexus"} > 1e9  # 1GB
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanize1024 }}."
+
+      # ── Rate Limit Exceeded ────────────────────────────
+      - alert: WIDDXRateLimitExceeded
+        expr: rate(http_requests_total{status="429"}[5m]) > 10
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "Rate limiting active on {{ $labels.instance }}"
+          description: "{{ $value | humanize }} 429 responses per second."

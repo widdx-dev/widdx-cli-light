@@ -1,0 +1,20 @@
+# Auto-detect text files; LF in repo, CRLF on checkout (Windows-native)
+* text=auto
+
+# Shell scripts — keep LF even on Windows (bash requires LF)
+*.sh text eol=lf
+
+# Batch files — keep CRLF (cmd requires CRLF)
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files — never touch
+*.vsix binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff2 binary
+*.eot binary
+*.ttf binary

@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "title": "WIDDX Nexus — Production Monitoring",
+    "tags": ["widdx", "production"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Requests per Second",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {"expr": "rate(widdx_requests_total[1m])", "legendFormat": "All"}
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {"expr": "widdx_error_rate", "legendFormat": "Error Rate"}
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "gauge",
+        "datasource": "Prometheus",
+        "targets": [
+          {"expr": "widdx_memory_rss_bytes / 1024 / 1024", "legendFormat": "RSS MB"}
+        ]
+      },
+      {
+        "title": "Tool Latency (p95)",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {"expr": "widdx_tool_duration_seconds{quantile=\"0.95\"}", "legendFormat": "{{tool}}"}
+        ]
+      },
+      {
+        "title": "Endpoint Calls",
+        "type": "table",
+        "datasource": "Prometheus",
+        "targets": [
+          {"expr": "widdx_endpoint_calls_total", "format": "table"}
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}
