@@ -39,6 +39,16 @@ PROVIDER_LIST: list[dict[str, Any]] = [
         "badge": "[bold #0891b2]API KEY[/]",
     },
     {
+        "id": "atria",
+        "label": "🟣 Atria",
+        "tab":   "atria",
+        "desc":  "Atria Dawn Preview — 256K context, text-only, OpenAI-compatible",
+        "default_url": _DEFAULT_BASE_URLS["atria"],
+        "default_models": _DEFAULT_MODELS["atria"],
+        "needs_key": True,
+        "badge": "[bold #a855f7]API KEY[/]",
+    },
+    {
         "id": "openai",
         "label": "⚪ OpenAI",
         "tab":   "openai",

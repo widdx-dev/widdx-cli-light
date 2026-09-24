@@ -143,6 +143,7 @@ def _get_providers() -> dict[str, str]:
             _KEY_PROVIDERS.update({
                 "deepseek": "DEEPSEEK",
                 "openai": "OPENAI",
+                "atria": "ATRIA",
                 "opencode-zen": "OPENCODE_ZEN",
                 "opencode": "OPENCODE_ZEN",
             })
@@ -156,14 +157,39 @@ def _env_name(provider_name: str) -> str:
     return f"{_ENV_PREFIX}{key}"
 
 
+# Providers whose users commonly set the variable with spaces instead of an
+# underscore (e.g. Windows "set ATRIA API KEY=..."). Checked in addition to the
+# canonical <PROVIDER>_API_KEY form.
+_ENV_ALIASES: dict[str, tuple[str, ...]] = {
+    "atria": ("ATRIA API KEY", "ATRIA_API_KEY"),
+}
+
+
+def _env_candidates(provider_name: str) -> tuple[str, ...]:
+    """Environment variable names to probe for a provider, most specific first."""
+    providers = _get_providers()
+    canonical = providers.get(provider_name, provider_name.upper())
+    names = [_ENV_PREFIX + canonical, canonical + "_API_KEY"]
+    names.extend(_ENV_ALIASES.get(provider_name, ()))
+    # de-duplicate, preserve order
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for n in names:
+        if n not in seen:
+            seen.add(n)
+            ordered.append(n)
+    return tuple(ordered)
+
+
 def get_key(provider_name: str) -> Optional[str]:
     """Retrieve an API key.
 
     Checks (in order):
       1. WIDDX_API_KEY_<PROVIDER> (set by set_key during this session)
       2. <PROVIDER>_API_KEY (e.g. DEEPSEEK_API_KEY — pre-existing env var)
-      3. Persisted .widdx/apikeys.json (survives restarts)
-      4. WIDDX_API_KEY (fallback generic key)
+      3. Provider-specific aliases (e.g. the spaced "ATRIA API KEY" form)
+      4. Persisted .widdx/apikeys.json (survives restarts)
+      5. WIDDX_API_KEY (fallback generic key)
 
     Returns None if no key is found.
     """
@@ -173,12 +199,11 @@ def get_key(provider_name: str) -> Optional[str]:
     if val:
         return val
 
-    # 2. Pre-existing provider-specific env var (e.g. DEEPSEEK_API_KEY)
-    providers = _get_providers()
-    standard_var = providers.get(provider_name, provider_name.upper()) + "_API_KEY"
-    val = os.environ.get(standard_var)
-    if val:
-        return val
+    # 2. Pre-existing provider env vars, including spaced aliases
+    for candidate in _env_candidates(provider_name)[1:]:
+        val = os.environ.get(candidate)
+        if val:
+            return val
 
     # 3. Persisted key file (survives restarts)
     persisted = _load_persisted_keys()

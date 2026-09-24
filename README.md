@@ -59,7 +59,7 @@ This table compares **WIDDX Nexus** against general categories of AI coding tool
 | **Containment & Safety** | **4 measured bounds** (Drift, Invariance, Lyapunov, SPC) fed from live signals | Timeouts + sandbox | Permission prompts |
 | **Product Verification** | **AST + runtime verifiers** (Game, Web, API, CLI) before declaring done | Build/test output | User inspection |
 | **Offline / Local Routing** | **Local classifier + rule engine** (no LLM needed to route tasks) | Cloud-only | Cloud-only |
-| **Providers** | **OpenCode Zen, DeepSeek, Ollama, GGUF, OpenAI-compatible** | Proprietary | Subscription API keys |
+| **Providers** | **OpenCode Zen, DeepSeek, Atria, Ollama, GGUF, OpenAI-compatible** | Proprietary | Subscription API keys |
 | **Execution Auditability** | **Replay engine** — recorded signals + decision diffs, `/replay` CLI | Session logs | Terminal scrollback |
 | **Autonomy Level (self-assessed)** | **3.5** | ~4.0 | ~3.0 |
 
@@ -387,6 +387,7 @@ WIDDX Nexus ships with automated failover across these backends:
 | :--- | :--- | :---: | :--- |
 | **OpenCode Zen** | Cloud | No | **Default provider.** Free tier; availability is rate-limited and models rotate. |
 | **DeepSeek** | Cloud | Yes | Reliable paid option; the most dependable backend for sustained work. |
+| **Atria** | Cloud | Yes | `Atria-Dawn-Preview` — 256K context, text-only, OpenAI-compatible. Key from the Atria console, stored via `/apikey` or `ATRIA_API_KEY`. |
 | **Ollama** | Local | No | Fully offline. Requires Ollama installed and a model pulled. |
 | **GGUF Direct** | Local | No | Runs quantized GGUF models in-process; requires `llama-cpp-python` (`pip install ".[gguf]"`). |
 | **OpenAI-compatible** | Cloud | Usually | Any endpoint implementing the OpenAI chat-completions API. |

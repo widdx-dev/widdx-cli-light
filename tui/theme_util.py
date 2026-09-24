@@ -6,6 +6,7 @@ from __future__ import annotations
 PROVIDER_OPTIONS = [
     ("🌐 OpenCode Zen", "opencode-zen"),
     ("🔵 DeepSeek", "deepseek"),
+    ("🟣 Atria", "atria"),
     ("⚪ OpenAI", "openai"),
     ("🟠 Ollama", "ollama"),
     ("📦 GGUF", "gguf"),

@@ -241,6 +241,7 @@ _DEFAULT_BASE_URLS = {
     "gguf": "http://localhost:11434",
     "opencode-zen": "https://opencode.ai/zen/v1",
     "opencode": "https://opencode.ai/zen/v1",
+    "atria": "https://api.atria-asi.ai/v1",
 }
 
 _DEFAULT_MODELS: dict[str, list[str]] = {
@@ -249,6 +250,7 @@ _DEFAULT_MODELS: dict[str, list[str]] = {
     "openai": ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini"],
     "ollama": [],             # تُجلب ديناميكياً من fetch_ollama_models()
     "gguf": [],               # تُجلب ديناميكياً من fetch_gguf_models()
+    "atria": ["Atria-Dawn-Preview"],  # single model, capitalization matters
 }
 
 

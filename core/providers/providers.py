@@ -9,6 +9,7 @@ Each provider now lives in its own module:
   - openai_compatible.py — OpenAICompatibleProvider
   - opencode_zen.py      — OpenCodeZenProvider
   - deepseek.py          — DeepSeekProvider
+  - atria.py             — AtriaProvider
   - free_models.py       — Free model discovery + cost tracking
   - gguf_provider.py     — GGUFDirectProvider + config constants
   - factory.py           — create_provider + model resolution
@@ -26,6 +27,7 @@ from core.providers.ollama import OllamaProvider
 from core.providers.openai_compatible import OpenAICompatibleProvider
 from core.providers.opencode_zen import OpenCodeZenProvider
 from core.providers.deepseek import DeepSeekProvider
+from core.providers.atria import AtriaProvider
 from core.providers.gguf_provider import (
     GGUFDirectProvider,
     _auto_install_llama_cpp,
@@ -61,7 +63,7 @@ __all__ = [
     "_TOOL_CAPABLE_PATTERNS", "_REASONING_PATTERNS",
     # Providers
     "OllamaProvider", "OpenAICompatibleProvider", "OpenCodeZenProvider",
-    "DeepSeekProvider", "GGUFDirectProvider",
+    "DeepSeekProvider", "GGUFDirectProvider", "AtriaProvider",
     # Config
     "_DEFAULT_BASE_URLS", "_DEFAULT_MODELS", "FREE_MODELS_CACHE",
     # Factory

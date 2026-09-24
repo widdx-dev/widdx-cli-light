@@ -154,6 +154,16 @@ class Provider(ABC):
         full_reasoning = _clean_surrogates("".join(reasoning_chunks))
         if full_reasoning:
             content = f"[thinking]\n{full_reasoning}\n[/thinking]\n\n" + (content or "")
+        return content, Provider._collect_tool_calls(current_tool_calls)
+
+    @staticmethod
+    def _collect_tool_calls(current_tool_calls: dict) -> list:
+        """Convert accumulated tool_call deltas into ToolCall objects.
+
+        Split out of _finalize_stream so providers that must build their own
+        final content (e.g. ones whose reasoning channel needs special
+        handling) can reuse the same parsing and id-validation.
+        """
         calls = []
         for idx in sorted(current_tool_calls):
             tc = current_tool_calls[idx]
@@ -170,7 +180,7 @@ class Provider(ABC):
             calls.append(ToolCall(
                 name=tc["function"]["name"], args=args, id=call_id,
             ))
-        return content, calls
+        return calls
 
 
 # ---------------------------------------------------------------------------

@@ -17,7 +17,7 @@ logger = logging.getLogger("widdx.config")
 _INSTALL_DIR = Path(__file__).resolve().parent.parent.parent
 _USER_CONFIG_DIR = Path.home() / ".widdx"
 
-_VALID_PROVIDERS = {"ollama", "gguf", "opencode-zen", "opencode", "deepseek", "openai-compatible", "openai"}
+_VALID_PROVIDERS = {"ollama", "gguf", "opencode-zen", "opencode", "deepseek", "atria", "openai-compatible", "openai"}
 
 
 def validate_config(cfg: dict) -> dict:

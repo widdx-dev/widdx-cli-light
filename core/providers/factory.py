@@ -8,6 +8,7 @@ from .ollama import OllamaProvider
 from .openai_compatible import OpenAICompatibleProvider
 from .opencode_zen import OpenCodeZenProvider
 from .deepseek import DeepSeekProvider
+from .atria import AtriaProvider
 from .gguf_provider import GGUFDirectProvider, _DEFAULT_BASE_URLS, _DEFAULT_MODELS
 from .free_models import fetch_free_models, fetch_free_models_cli, fetch_ollama_models, set_fallback_model
 from ..config.keychain import get_key
@@ -74,6 +75,8 @@ def create_provider(cfg: dict, raw: bool = False) -> Provider:
         return OpenCodeZenProvider(name, model, base_url, api_key)
     if name == "deepseek":
         return DeepSeekProvider(name, model, base_url, api_key, cfg=cfg)
+    if name == "atria":
+        return AtriaProvider(name, model, base_url, api_key, cfg=cfg)
     return OpenAICompatibleProvider(name, model, base_url, api_key)
 
 
@@ -124,5 +127,6 @@ def resolve_model(provider_name: str, preferred: str | None = None,
         "gguf": "",
         "deepseek": "deepseek-v4-flash",
         "openai": "gpt-4o-mini",
+        "atria": "Atria-Dawn-Preview",
     }
     return _FALLBACK.get(provider_name, preferred or "")
